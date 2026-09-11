@@ -1,0 +1,95 @@
+suite: pedagogical_routing
+dimension: routing
+cases:
+  - id: no_attempt_probes_first
+    exercise_id: "2.16.1"
+    turns:
+      - message: "I need help with this exercise."
+        expect:
+          action_in: [ASK_DIAGNOSTIC, ASK_SOCRATIC]
+          action_not_in: [EXPLAIN_CONCEPT, GIVE_HINT]
+          retrieval: false
+          no_leakage: true
+          state_attempt_count: 0
+
+  - id: misconception_is_targeted
+    turns:
+      - message: "I think normalization just means splitting a large table into smaller tables."
+        expect:
+          action_in: [CORRECT_MISCONCEPTION]
+          intent: student_attempt
+          retrieval: false
+          state_misconception_active: normalization
+
+  - id: partial_understanding_gets_socratic
+    initial_state:
+      current_topic: interoperability
+      concept_mastery: { interoperability: 0.4 }
+    turns:
+      - message: "I would say interoperability is when two hospital systems can talk to each other."
+        expect:
+          action_in: [ASK_SOCRATIC]
+          response_contains_question: true
+          retrieval: false
+
+  - id: partial_after_socratic_escalates_to_hint
+    initial_state:
+      current_topic: interoperability
+      concept_mastery: { interoperability: 0.4 }
+      previous_actions: [ASK_SOCRATIC]
+    turns:
+      - message: "I would say they exchange messages in an agreed format."
+        expect:
+          action_in: [GIVE_HINT]
+          state_hint_level: 1
+          state_action_recorded: true
+
+  - id: prerequisite_gap_gets_explanation
+    initial_state:
+      current_topic: data_information_knowledge
+      concept_mastery: { data_information_knowledge: 0.3 }
+      previous_actions: [ASK_SOCRATIC]
+    turns:
+      - message: "Data and information are the same as knowledge in a patient record."
+        expect:
+          action_in: [EXPLAIN_CONCEPT]
+          intent: answer_to_tutor_question
+
+  - id: advanced_learner_is_challenged
+    initial_state:
+      current_topic: interoperability
+      concept_mastery: { interoperability: 0.85 }
+      demonstrated_concepts: [interoperability]
+    turns:
+      - message: "Why does interoperability need more than a shared message format?"
+        expect:
+          action_in: [CHALLENGE]
+          retrieval: false
+
+  - id: textbook_specific_question_retrieves
+    turns:
+      - message: "According to the textbook, what does the glossary say about interoperability?"
+        expect:
+          action_in: [EXPLAIN_CONCEPT, RETRIEVE]
+          retrieval: true
+          max_llm_calls: 6
+
+  - id: hint_followup_does_not_retrieve
+    initial_state:
+      current_topic: interoperability
+      concept_mastery: { interoperability: 0.45 }
+      hint_level: 1
+      previous_actions: [GIVE_HINT]
+    turns:
+      - message: "I would say the second system also has to interpret the data the same way."
+        expect:
+          retrieval: false
+          action_not_in: [RETRIEVE]
+
+  - id: off_topic_is_redirected
+    turns:
+      - message: "What is the weather like in Leipzig today?"
+        expect:
+          action_in: [REDIRECT]
+          intent: off_topic
+          retrieval: false

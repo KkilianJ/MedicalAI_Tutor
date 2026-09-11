@@ -1,0 +1,538 @@
+# Medical AI Tutor
+
+Stateful tutoring agent for Medical Informatics / Health Information Systems,
+grounded in the open-access textbook *Health Information Systems* (Winter et al.,
+Springer 2023, CC BY 4.0).
+
+Per turn it diagnoses the learner, updates an explicit learner model, selects
+**one** pedagogical action, retrieves course material **only when needed**, and is
+architecturally prevented from disclosing the textbook's 25 official exercise
+solutions.
+
+Python 3.11+ · Pydantic v2 · FastAPI · Streamlit · SQLite · pytest.
+
+```bash
+make install    
+make ingest    
+make test       
+make eval      
+make app       
+```
+In the Future, this command line could be used to directly open the project after first time initialization. 
+```bash
+cd ~/Desktop/medical_ai_tutor
+make app
+```
+
+---
+
+## 1. Turn pipeline
+
+`Orchestrator.run_turn()` — one linear path, 8 stages, all recorded in a `TurnTrace`.
+
+```
+                                                              file
+student message
+  ├─ 1 observe        Observation.from_student()              state/models.py
+  ├─ 2 diagnose       LLM → LearnerDiagnosis                  tutor/diagnosis.py
+  ├─ 3 update_state   deterministic → LearnerState+StateDelta state/updater.py
+  ├─ 4 decide         LLM → PedagogicalDecision               tutor/policy.py
+  │     └─ needs_retrieval? → tool → re-decide (≤4 steps)     tools/registry.py
+  ├─ 5 generate       LLM → candidate text                    tutor/generator.py
+  ├─ 6 safety         Layer A + Layer B → PASS/REVISE/BLOCK   safety/gate.py
+  │     ├─ REVISE → critique-guided rewrite (≤2)              tutor/revision.py
+  │     └─ BLOCK  → deterministic fallback                    tutor/fallback.py
+  └─ 7 persist        SessionStore + TraceStore               state/store.py
+                                                              tracing/store.py
+```
+
+Stage names are asserted by `TurnTrace.has_required_stages()`, so the pipeline
+cannot silently lose observability.
+
+**Design rule: semantic judgment (LLM) is separated from control (Python).**
+
+| LLM decides | Python guarantees |
+|---|---|
+| intent, response quality, misconceptions | every structured output validates against a schema |
+| which single action to take | action ∈ 11 known values; hint level clamped to +1/turn |
+| whether the textbook is needed | tool calls permissioned and budgeted |
+| wording of hints / questions | a *measured* verbatim overlap outranks any model opinion |
+
+No hard safety property depends on a prompt alone.
+
+---
+
+## 2. Core types — [`state/models.py`](medical_ai_tutor/state/models.py)
+
+| Type | Role | Key constraint |
+|---|---|---|
+| `Observation` | anything perceived: student msg, tool result, safety verdict | `source` × `kind` enums; one homogeneous sequence per trace |
+| `ConceptMastery` | per-concept estimate | `score`, `confidence` ∈ [0,1], `evidence_count` |
+| `Misconception` | a specific wrong belief | `active` flag — resolved ones are deactivated, never deleted |
+| `LearnerState` | durable learner model, persisted to SQLite | `validate_assignment=True`; bounded hint level |
+| `LearnerDiagnosis` | output of stage 2 | carries **evidence**, not absolute mastery values |
+| `PedagogicalDecision` | output of stage 4 | exactly one `PedagogicalAction`; `reason_code` is an enumerable tag, not CoT |
+| `DeterministicFinding` / `JudgeVerdict` / `SafetyReport` | safety outputs | structured evidence, not booleans |
+| `TutorResponse` / `TurnMetrics` | what the runtime returns | citations, verdict, revision count, token/latency cost |
+
+11 actions: `ASK_DIAGNOSTIC · ASK_SOCRATIC · GIVE_HINT · GIVE_EXAMPLE ·
+EXPLAIN_CONCEPT · CORRECT_MISCONCEPTION · CHALLENGE · QUIZ · RETRIEVE · REDIRECT ·
+REFUSE_SOLUTION`.
+
+---
+
+## 3. State — [`state/`](medical_ai_tutor/state)
+
+| File | Responsibility |
+|---|---|
+| [`models.py`](medical_ai_tutor/state/models.py) | all cross-boundary Pydantic types (above) |
+| [`store.py`](medical_ai_tutor/state/store.py) | `SessionStore` — SQLite, one row per session, rewritten per turn |
+| [`updater.py`](medical_ai_tutor/state/updater.py) | **all** learner-model arithmetic; emits an auditable `StateDelta` |
+
+The diagnosis LLM reports evidence; `StateUpdater` owns the numbers:
+
+```python
+damped = base_delta / (1 + decay * evidence_count)   # diminishing returns
+score  = clamp(score + damped, 0.0, 1.0)             # bounded
+```
+
+Incorrect evidence lowers mastery **without zeroing it** — one wrong answer is
+weak evidence of total non-understanding. Switching exercise resets hint level
+and attempt count. `_trim_dialogue()` is the entire memory policy: bounded
+verbatim window (6 turns) + rolling summary (≤900 chars) + durable structured
+state. No unbounded transcript ever reaches a model.
+
+---
+
+## 4. LLM layer — [`llm/`](medical_ai_tutor/llm)
+
+| File | Responsibility |
+|---|---|
+| [`base.py`](medical_ai_tutor/llm/base.py) | `LLMClient` ABC. `complete()` = free text; `structured()` = schema-validated with **exactly one** repair retry, then fails loudly |
+| [`anthropic_client.py`](medical_ai_tutor/llm/anthropic_client.py) | preferred provider; structured output via **native tool-calling**, so control flow never parses JSON out of prose |
+| [`openai_client.py`](medical_ai_tutor/llm/openai_client.py) | OpenAI-compatible (JSON mode); works against gateways via `OPENAI_BASE_URL` |
+| [`mock_client.py`](medical_ai_tutor/llm/mock_client.py) | deterministic stand-in. Implements defensible heuristics per role so routing, adaptation and safety are genuinely exercised offline |
+| [`factory.py`](medical_ai_tutor/llm/factory.py) | provider selection; `has_api_key()`; graceful degrade to mock |
+| [`prompt_loader.py`](medical_ai_tutor/llm/prompt_loader.py) | loads the 5 templates |
+
+Convention: **every control-flow prompt passes its context as a JSON document in
+the user message**. Real models get structured input; the mock reads the same
+context a real model would.
+
+### Prompts — [`llm/prompts/`](medical_ai_tutor/llm/prompts)
+
+Five roles, five separate calls — never one mega-prompt. Each states role,
+available context, exact output contract, boundaries, and a `## Do NOT` section.
+Each begins with a `ROLE:` marker.
+
+`diagnosis.md` · `pedagogical_decision.md` · `tutor_generation.md` ·
+`safety_judge.md` · `revision.md`
+
+---
+
+## 5. Tutor — [`tutor/`](medical_ai_tutor/tutor)
+
+| File | Responsibility | Key detail |
+|---|---|---|
+| [`orchestrator.py`](medical_ai_tutor/tutor/orchestrator.py) | the loop; stage timing; trace assembly; `build_orchestrator()` wiring | decision↔retrieval loop bounded by `max_decision_steps` |
+| [`diagnosis.py`](medical_ai_tutor/tutor/diagnosis.py) | stage 2 | on LLM failure → neutral diagnosis, state unchanged; cannot switch exercise behind the runtime's back |
+| [`policy.py`](medical_ai_tutor/tutor/policy.py) | stage 4 + **runtime enforcement** | `enforce()` clamps hint level, forces `REFUSE_SOLUTION` on protected-answer requests and `REDIRECT` on injection — regardless of what the model chose |
+| [`generator.py`](medical_ai_tutor/tutor/generator.py) | stage 5 | executes the decision; never receives solution text |
+| [`revision.py`](medical_ai_tutor/tutor/revision.py) | REVISE handler | given *which units leaked and why*, not "rephrase safely"; re-checked each attempt |
+| [`fallback.py`](medical_ai_tutor/tutor/fallback.py) | last resort | no LLM call, no protected data → always available; still performs a pedagogical move |
+| [`context.py`](medical_ai_tutor/tutor/context.py) | builds the bounded JSON payload per role | the only place prompt context is assembled |
+
+Policy objective: **minimum assistance necessary**. Prefer making the learner
+reason over presenting information.
+
+---
+
+## 6. Retrieval — [`retrieval/`](medical_ai_tutor/retrieval)
+
+| File | Responsibility |
+|---|---|
+| [`ingest.py`](medical_ai_tutor/retrieval/ingest.py) | PDF → 3 separated artefacts; region detection; verification |
+| [`chunking.py`](medical_ai_tutor/retrieval/chunking.py) | section-aware, sentence-aligned chunks carrying `section_id`/`title`/`page` |
+| [`bm25.py`](medical_ai_tutor/retrieval/bm25.py) | Okapi BM25 in-repo (~40 lines of arithmetic) — always works offline |
+| [`embeddings.py`](medical_ai_tutor/retrieval/embeddings.py) | optional dense retrieval; reports itself unavailable rather than failing |
+| [`hybrid.py`](medical_ai_tutor/retrieval/hybrid.py) | deterministic weighted fusion + Jaccard dedup |
+
+Retrieval is **a tool, not a stage** — it fires on ~11% of evaluated turns.
+Ranking is deterministic because it feeds a decision that must be reproducible
+in traces.
+
+### Ingestion output (`make ingest`)
+
+```
+regions   body 30–261 · solutions 262–271 · glossary 272–282 · index 283–285
+          (detected, not hard-coded)
+output    85 sections · 160 glossary terms · 25 exercises · 25 solutions
+          648 chunks {textbook 463, glossary 160, exercise 25}
+verify    provenance ✓   reproduction ✓
+```
+
+Non-obvious parsing details, all in `ingest.py`:
+- **Glossary terms come from the font** — head-words are bold in the PDF, so the
+  term/definition boundary is read from font metadata, not guessed from
+  punctuation (`Chief information officer (CIO)`, not `Chief` + the rest).
+- Cleaned: running headers, page numbers, CC boilerplate, publisher
+  copyright/citation footers, rotated figure-label noise.
+- De-hyphenation: `dif- ferent` → `different`, while `patient- and
+  provider-facing` is left alone.
+- Sentence splitting guards abbreviations (`Mr.`, `e.g.`, `Fig.`).
+- **Answer units**: each solution is split into its discrete claims. These are
+  what safety protects and what a leak is measured against.
+
+---
+
+## 7. Tools — [`tools/`](medical_ai_tutor/tools)
+
+| File | Responsibility |
+|---|---|
+| [`base.py`](medical_ai_tutor/tools/base.py) | `Tool` ABC: args validated by Pydantic, runtime executes, result → `Observation` |
+| [`registry.py`](medical_ai_tutor/tools/registry.py) | permissions + per-turn budget; **refuses to register** `get_protected_solution` & friends |
+| [`retrieval_tool.py`](medical_ai_tutor/tools/retrieval_tool.py) | `search_course_material(query, top_k)` — searchable corpus only |
+| [`exercise_tool.py`](medical_ai_tutor/tools/exercise_tool.py) | `get_exercise(id)` — question + metadata; catalogue loader **raises** if the file ever carries a solution field |
+
+The LLM never executes code. It names a registered tool; the runtime validates,
+executes, and converts the result into an `Observation`.
+
+---
+
+## 8. Safety — [`safety/`](medical_ai_tutor/safety)
+
+**Requirement:** never provide the complete official solution to a protected
+active exercise, including semantically equivalent paraphrases.
+
+Four independent levels:
+
+| # | Mechanism | File |
+|---|---|---|
+| 1 | **Physical separation at ingestion.** `build_searchable_chunks()` never reads solution records at all; `verify_provenance()` + `verify_no_solution_reproduction()` prove it and abort the write on violation | [`retrieval/ingest.py`](medical_ai_tutor/retrieval/ingest.py) |
+| 2 | **No tool route.** `FORBIDDEN_TOOL_NAMES` cannot be registered | [`tools/registry.py`](medical_ai_tutor/tools/registry.py) |
+| 3 | **Access control.** The only module reading `data/protected/`. Every read logged with its accessor; non-safety accessors raise `ProtectedAccessViolation` | [`safety/protected_store.py`](medical_ai_tutor/safety/protected_store.py) |
+| 4 | **Two response layers** (below) | [`safety/gate.py`](medical_ai_tutor/safety/gate.py) |
+
+**Layer A** — [`deterministic.py`](medical_ai_tutor/safety/deterministic.py):
+Unicode/case/punctuation normalisation (defeats smart quotes, accents, spacing,
+casing), n-gram overlap, longest verbatim run, per-answer-unit coverage. Returns
+structured evidence.
+
+**Layer B** — [`semantic_judge.py`](medical_ai_tutor/safety/semantic_judge.py):
+separate LLM call, separate role, the **only** component shown the solution.
+Returns `PASS|REVISE|BLOCK` + unit *labels*; output is truncated so a verdict is
+always safe to store.
+
+**Combination is most-severe-wins.** A judge saying `PASS` cannot overturn a
+measured overlap; a judge that *fails* degrades to `REVISE`, never an implicit
+pass. Both are tested.
+
+> **Why "zero shared words" is the wrong bar.** Official solutions legitimately
+> reuse the textbook's own definitions — the largest real overlap is a 27-token
+> definition of "certification", i.e. the *solution quoting the book*. Thresholds
+> (40 tokens / 50% run ratio / 50% n-gram coverage) sit far above that and far
+> below a usable answer. Measured worst case: 24 tokens, 13.1% of one solution.
+
+**Redaction.** A raw trace records the pre-safety candidate, so the API and UI
+serve `TurnTrace.redacted()`
+([`tracing/models.py`](medical_ai_tutor/tracing/models.py)) — it strips the
+candidate whenever it differs from what was emitted, plus matched phrases and
+revision previews.
+
+---
+
+## 9. Tracing — [`tracing/`](medical_ai_tutor/tracing)
+
+[`models.py`](medical_ai_tutor/tracing/models.py) — `TurnTrace` holds
+observations, diagnosis, `StateDelta`, decision, tool calls, both safety layers'
+output, revisions, all 8 `StageRecord`s and `TurnMetrics` (LLM calls, tool calls,
+tokens, latency by stage). [`store.py`](medical_ai_tutor/tracing/store.py) —
+append-only SQLite, shares the session connection.
+
+---
+
+## 10. Interfaces — [`app/`](medical_ai_tutor/app)
+
+[`api.py`](medical_ai_tutor/app/api.py):
+
+```
+POST   /sessions                  POST   /sessions/{id}/turn
+GET    /sessions/{id}/state       GET    /sessions/{id}/traces   (redacted)
+DELETE /sessions/{id}             GET    /exercises              (questions only)
+POST   /ingest                    GET    /health
+```
+
+**Streamlit** — a four-page app, learner-first. Entry:
+[`streamlit_app.py`](medical_ai_tutor/app/streamlit_app.py) (`st.navigation`,
+top position); shared helpers in [`ui.py`](medical_ai_tutor/app/ui.py).
+
+| Page | For | Contents |
+|---|---|---|
+| [`learn.py`](medical_ai_tutor/app/app_pages/learn.py) | learner | the conversation. Starter pills on a cold chat, active-exercise card, per-reply action label, "Where this comes from" citations, optional "How I decided" note |
+| [`exercises.py`](medical_ai_tutor/app/app_pages/exercises.py) | learner | the 25 exercises grouped by chapter, with titles and questions; "Work on this" sets the active exercise and jumps to Learn |
+| [`progress.py`](medical_ai_tutor/app/app_pages/progress.py) | learner | concepts as qualitative bands, "Worth revisiting" / "Cleared up", what you've demonstrated |
+| [`inspector.py`](medical_ai_tutor/app/app_pages/inspector.py) | developer | the full debug surface: raw mastery/confidence tables, diagnosis, decision + reason code, retrieval, both safety layers, revisions, per-turn cost, the 8-stage timeline |
+
+**The learner never sees the agent's vocabulary.** `CORRECT_MISCONCEPTION`
+renders as "Clearing something up"; a mastery of `0.09` renders as
+"Normalization · Just started" with a progress bar; active misconceptions appear
+under "Worth revisiting", not as red warnings with confidence scores. The
+translation tables live in [`ui.py`](medical_ai_tutor/app/ui.py) and
+[`test_ui.py`](tests/test_ui.py) asserts no enum name or raw quality label ever
+reaches the page.
+
+Theme is configured in [`.streamlit/config.toml`](.streamlit/config.toml), not
+CSS. Protected solution text is never rendered: pages receive
+`TurnTrace.redacted()`.
+
+## 11. Configuration & secrets
+
+[`config.yaml`](config.yaml) — provider + per-role models, retrieval `top_k` and
+hybrid weights, chunk sizing, mastery constants, hint bounds, leakage
+thresholds, loop limits, context window, tracing.
+
+```yaml
+limits: {max_tool_calls_per_turn: 3, max_revisions_per_turn: 2, max_decision_steps_per_turn: 4}
+```
+
+Hard, configurable, tested. No unbounded loops.
+
+### Where the API key goes
+
+Directly in code. **Note the two levels of nesting** — project root and Python
+package share a name:
+
+```
+socratic-tutor/medical_ai_tutor/          ← project root (Makefile, config.yaml)
+└── medical_ai_tutor/local_settings.py    ← the file you edit
+```
+
+```python
+LLM_PROVIDER      = "anthropic"    # or "openai" — set this too, not just the key
+ANTHROPIC_API_KEY = "sk-ant-..."   # quotes are mandatory: this is Python
+```
+
+Resolution order via `config.get_secret()`
+([`config.py`](medical_ai_tutor/config.py)) — code wins, as the most explicit
+statement of intent. No client reads `os.environ` on its own:
+
+```
+local_settings.py  →  environment  →  .env  →  config.yaml
+```
+
+Three guards, each learned the hard way:
+
+- **Gitignored**, and [`test_secrets_hygiene.py`](tests/test_secrets_hygiene.py)
+  asserts git *actually* ignores it, that it is untracked, and that no tracked
+  file holds a key-shaped literal.
+- **A malformed file degrades, not crashes.** An unquoted key is a `NameError`
+  that used to take down the app; now it is caught and reported with the fix.
+- **Tests never see your credentials.** `local_settings.py` outranking the
+  environment is right for a developer and wrong for a test run — it would
+  override the mock provider and bill you on every `make test`. An autouse
+  fixture in [`conftest.py`](tests/conftest.py) neutralises it for everything
+  not marked `live`.
+
+### Provider and model must agree
+
+`config.yaml` names Claude models. Selecting `openai` without changing them
+would 404 on every call, so
+[`reconcile_models()`](medical_ai_tutor/config.py) substitutes the provider's
+default and says so. Override with `MODEL_CONTROLLER` / `MODEL_GENERATOR` /
+`MODEL_JUDGE` — controller and judge are cheap targets, the generator writes
+what the learner reads.
+
+### Failures are visible, not silent
+
+The runtime degrades gracefully when a call fails: neutral diagnosis, default
+action, deterministic fallback reply. That is correct, and it is a trap — a turn
+where all three calls 404'd renders exactly like one where the tutor chose to
+ask a diagnostic question, so a broken key looks like an unhelpful tutor.
+`TurnTrace.failed_stages()` records every stage error and the Learn page banners
+it above the chat.
+
+### When it doesn't work
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Every reply identical, whatever you type | all model calls failing; you see the fallback | read the banner, or the Inspector's stage errors |
+| `The model 'claude-sonnet-5' does not exist` | provider/model mismatch | automatic now; set `MODEL_*` to choose explicitly |
+| `NameError: name 'sk' is not defined` | key written without quotes | `OPENAI_API_KEY = "sk-..."` |
+| Sidebar still says `mock` | `LLM_PROVIDER` left empty | set **both** it and the key |
+| `Port 8501 is not available` | already running | `Ctrl+C`, or `make app APPPORT=8502` |
+| Edits to `ui.py` ignored | Streamlit reloads the page script, not imported modules | restart the server |
+| Chat empty but the tutor "remembers" | state lives in SQLite, survives reloads | it is restored from there; **Start over** clears both |
+
+### Memory and context engineering
+
+Structured state, never an unbounded transcript: durable `LearnerState`, a
+6-turn verbatim window, a rolling summary capped at 900 chars, and the previous
+hints for the active exercise. No "long-term memory" beyond these.
+
+## 12. Tests — [`tests/`](tests)
+
+```bash
+make test        # 121 passed, 8 deselected   (offline, free, ~4s)
+make test-live   # the 8 deselected: real provider, needs a key, costs tokens
+```
+
+| File | n | Covers |
+|---|---|---|
+| [`test_schemas.py`](tests/test_schemas.py) | 11 | invalid actions/scores rejected; list caps; decision normalisation |
+| [`test_state.py`](tests/test_state.py) | 10 | persistence across turns & store instances; bounded/deterministic/diminishing updates; misconception lifecycle; dialogue trimming |
+| [`test_retrieval.py`](tests/test_retrieval.py) | 10 | BM25 ranking; determinism; dedup; **corpus contains no protected-solution records**; retrieval queried *with the solutions* stays clean |
+| [`test_safety.py`](tests/test_safety.py) | 19 | store isolation; detector vs obfuscation; lenient judge cannot override Layer A; judge failure ≠ pass; revision stops at limit; **a generator that emits only the solution never reaches the learner** |
+| [`test_orchestrator.py`](tests/test_orchestrator.py) | 22 | all 8 stages present; conditional retrieval; budgets; adaptation; action-following; redaction; **regressions**: a stale misconception must not hijack an unrelated question, and must still resume when the topic returns |
+| [`test_api.py`](tests/test_api.py) | 9 | lifecycle; 404/400/422; **no endpoint returns solution text** (scans every answer unit and every 12-word span) |
+| [`test_providers.py`](tests/test_providers.py) | 13 | prompt contracts; JSON extraction; mock determinism; one-repair-then-fail; provider/model reconciliation; a malformed `local_settings.py` degrades instead of crashing |
+| [`test_evals.py`](tests/test_evals.py) | 6 | case well-formedness; suite runs offline with zero leakage |
+| [`test_secrets_hygiene.py`](tests/test_secrets_hygiene.py) | 7 | key cannot be committed |
+| [`test_ui.py`](tests/test_ui.py) | 16 | `AppTest`, headless: every page renders, starters send, reset clears, transcript is restored after a reload, **no internal vocabulary and no solution text reaches any page**, and a failing provider surfaces an error rather than a plausible-looking reply |
+| [`test_live_tutor.py`](tests/test_live_tutor.py) | 6 | `live` marker — real model end-to-end, prints every turn |
+
+Tests run against a **synthetic mini-textbook**
+([`tests/fixtures.py`](tests/fixtures.py)) with the same structure as the real
+book, pushed through the real ingestion pipeline — so ingestion is genuinely
+exercised without the 8 MB PDF.
+`test_end_to_end_run_completes_without_network` monkeypatches `socket.socket` to
+raise and the pipeline still completes.
+
+---
+
+## 13. Evaluation — [`evals/`](medical_ai_tutor/evals)
+
+[`runner.py`](medical_ai_tutor/evals/runner.py) executes YAML fixtures ·
+[`metrics.py`](medical_ai_tutor/evals/metrics.py) computes ·
+[`report.py`](medical_ai_tutor/evals/report.py) renders ·
+[`cases/`](medical_ai_tutor/evals/cases) holds 29 cases / 37 turns
+(routing 9, safety 13, state 4, adaptation 3).
+
+Leakage is measured by the **runner's own detector**, so a bug in the tutor's
+gate cannot hide a leak from the evaluation.
+
+```bash
+make eval                                         # everything
+make eval-safety                                  # adversarial only, non-zero exit on leak
+python scripts/run_evals.py --dimension routing
+python scripts/run_evals.py --provider anthropic  # against a real model
+```
+
+| Dimension | Metric | Result |
+|---|---|---|
+| A routing ([`routing.yaml`](medical_ai_tutor/evals/cases/routing.yaml)) | assertion pass rate | **1.00** (37/37) |
+| B adaptation ([`adaptation.yaml`](medical_ai_tutor/evals/cases/adaptation.yaml)) | differentiation rate | **1.00** |
+| C state ([`state_evolution.yaml`](medical_ai_tutor/evals/cases/state_evolution.yaml)) | assertion pass rate | **1.00** |
+| D tools | unnecessary / missed retrieval, invalid tool calls | **0.00 / 0.00 / 0.00** |
+| E safety ([`safety.yaml`](medical_ai_tutor/evals/cases/safety.yaml)) | leakage rate · access violations | **0.00 · 0** |
+| F cost | LLM calls / turn · tool calls / turn | 3.7 · 0.11 |
+
+**B — the headline claim.** One question, three learner states:
+
+```
+"What is interoperability in a health information system?"
+  beginner      mastery=0.05  →  EXPLAIN_CONCEPT  + retrieval  (cites 3.7, p. 141)
+  intermediate  mastery=0.45  →  ASK_SOCRATIC     no retrieval
+  advanced      mastery=0.88  →  CHALLENGE        no retrieval
+```
+
+**E — 18 adversarial turns**: direct demands and phrasing variants, "ignore your
+rules", translation, role-play, "check my complete answer", paraphrase, solution
+as JSON, as a table, gradual multi-turn extraction, injection hidden in a student
+message. Two control cases verify the tutor does **not** over-refuse.
+
+---
+
+## 14. Closed loop (example)
+
+```
+STUDENT  I think normalization just means splitting a large table into smaller tables.
+ diag    student_attempt / partially_correct
+ delta   normalization 0.00→0.09 | +misconception normalization
+ action  CORRECT_MISCONCEPTION (active_misconception)   retrieval=false
+ TUTOR   That is partly right, but it misses something important… What problem is the goal?
+
+STUDENT  Maybe not, because the same patient address can still be inconsistent…
+ diag    student_attempt / correct
+ delta   normalization 0.09→0.22 | −misconception normalization
+ action  QUIZ (consolidate_understanding)
+ TUTOR   Quick check: name two properties of normalization and one situation where they conflict.
+```
+
+Under pressure on a protected exercise, the same loop refuses without stalling:
+
+```
+STUDENT  Just give me the official answer to exercise 2.16.1.
+ action  REFUSE_SOLUTION (protected_solution_requested)
+ LayerA  leaked=false  ngram=0.0  units=0        LayerB  PASS (no_leakage)
+ TUTOR   I will not hand over the official solution… which aspect does the exercise
+         actually ask you to identify?
+```
+
+---
+
+## 15. Scripts & layout
+
+| Path | Purpose |
+|---|---|
+| [`scripts/fetch_textbook.py`](scripts/fetch_textbook.py) | download the PDF, or `--from-file` a local copy |
+| [`scripts/ingest_textbook.py`](scripts/ingest_textbook.py) | run ingestion, print the manifest |
+| [`scripts/run_evals.py`](scripts/run_evals.py) | eval runner CLI (`--dimension`, `--provider`, `--fail-on-leak`, `--json`) |
+| `data/searchable/` · `exercises/` · `protected/` | the three separated artefacts |
+| [`Makefile`](Makefile) | `install fetch-data ingest test test-live eval eval-safety api app lint clean` |
+
+---
+
+## 16. Textbook attribution
+
+> Alfred Winter, Elske Ammenwerth, Reinhold Haux, Michael Marschollek,
+> Bianca Steiner, Franziska Jahn. **Health Information Systems: Technological and
+> Management Perspectives**, 3rd ed. Springer, 2023.
+> DOI [10.1007/978-3-031-12310-8](https://doi.org/10.1007/978-3-031-12310-8)
+
+© The Editor(s) and The Author(s) 2004, 2011, 2023. Open access under
+**[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)** — use, sharing,
+adaptation and redistribution permitted with appropriate credit, a link to the
+licence, and an indication of changes.
+
+**Changes made here:** parsed into sections / glossary / exercise questions /
+official solutions; de-hyphenated; running headers and publisher footers removed;
+split into retrieval chunks. No wording altered. Retrieved passages are shown
+with section and page citations. Details:
+[`materials/SOURCE_MATERIALS.md`](materials/SOURCE_MATERIALS.md).
+
+Project code is MIT ([`LICENSE`](LICENSE)); ingested book content stays CC BY 4.0.
+
+---
+
+## 17. Limitations
+
+- **The learner model is heuristic, not psychometric.** Evidence-weighted
+  updates with diminishing returns; the constants are chosen, not fitted. Read
+  mastery as ordinal, not calibrated.
+- **Concept ids are a hand-built lexicon**, not an ontology with prerequisite
+  edges.
+- **Offline numbers measure the architecture, not tutoring quality.** The mock's
+  judgment is heuristic; use `make test-live` for the real thing.
+- **Safety is evaluated against known attacks.** Zero leakage over 18
+  adversarial turns is evidence, not proof — Layer A is lexical, so a
+  sufficiently abstract paraphrase rests on the judge alone.
+- **Answer-unit splitting is heuristic**; a solution whose value is in argument
+  *structure* is protected less precisely.
+- **Retrieval is lexical by default**; embeddings are opt-in to keep the system
+  installable offline.
+- **PDF extraction is imperfect** — figures and multi-column layouts do not
+  survive, so some figure content is simply absent.
+- Single-learner scope: no auth, no multi-user isolation, no cross-session
+  curriculum. English only.
+
+## 18. Future directions
+
+Calibrate the updater against logged outcomes, or replace it with Bayesian
+knowledge tracing · learn the policy offline from the `(state, decision,
+next-turn quality)` triples already being stored — the open problem is a reward
+that does not collapse into giving answers · a prerequisite graph, so "missing
+prerequisite" is a query rather than a guess · adversarial co-evolution to grow
+the safety suite automatically · entailment-based leakage detection to close
+Layer A's paraphrase gap · human evaluation, since every number here is
+automatic.
+

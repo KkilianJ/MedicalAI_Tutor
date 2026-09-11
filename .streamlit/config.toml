@@ -1,0 +1,26 @@
+# Calm, readable theme for a reading-and-thinking app.
+[theme]
+base = "light"
+primaryColor = "#1f6f5c"            # deep teal: accessible against white button text
+backgroundColor = "#fdfdfc"
+secondaryBackgroundColor = "#f2f4f2"
+textColor = "#1b2321"
+linkColor = "#1f6f5c"
+borderColor = "#e0e4e0"
+codeBackgroundColor = "#f2f4f2"
+
+greenColor = "#1a7f4f"
+blueColor = "#2563a8"
+orangeColor = "#b5720e"
+redColor = "#b3261e"
+grayColor = "#5d6b66"
+
+[theme.sidebar]
+backgroundColor = "#f6f8f6"
+borderColor = "#e0e4e0"
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false

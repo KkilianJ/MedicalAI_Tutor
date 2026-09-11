@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "medical-ai-tutor"
+version = "0.1.0"
+description = "Agentic AI tutor for Medical Informatics / Health Information Systems"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Medical AI Tutor contributors" }]
+dependencies = [
+    "pydantic>=2.6",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "streamlit>=1.30",
+    "pyyaml>=6.0",
+    "numpy>=1.26",
+    "httpx>=0.27",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+ingest = ["pdfplumber>=0.11"]
+anthropic = ["anthropic>=0.40"]
+openai = ["openai>=1.30"]
+embeddings = ["sentence-transformers>=2.6"]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "ruff>=0.4"]
+
+[tool.setuptools.packages.find]
+include = ["medical_ai_tutor*"]
+
+[tool.setuptools.package-data]
+"medical_ai_tutor.llm" = ["prompts/*.md"]
+"medical_ai_tutor.evals" = ["cases/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
+# `live` tests call a real LLM provider and cost money. They are skipped unless
+# an API key is configured (local_settings.py or the environment), and are
+# excluded from the default run; use `pytest -m live -s` to run them.
+markers = [
+    "live: hits a real LLM provider (requires an API key; costs tokens)",
+]
+addopts = "-m 'not live'"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+# UP042: `str, Enum` is deliberate — it keeps enum values plain JSON
+# strings for pydantic, json.dumps and SQLite alike.
+ignore = ["E501", "B008", "UP042"]

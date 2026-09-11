@@ -1,0 +1,104 @@
+# Medical AI Tutor - runtime configuration.
+# Environment variables override these values (see config.py for the mapping).
+
+llm:
+  # mock | anthropic | openai
+  provider: mock
+  models:
+    # Distinct roles may use distinct models. The judge is deliberately a
+    # separate call with a separate role, never the generator's model instance.
+    controller: claude-sonnet-5      # diagnosis + pedagogical decision
+    generator: claude-sonnet-5       # student-facing tutor text
+    judge: claude-sonnet-5           # independent semantic safety judge
+  max_output_tokens: 1200
+  temperature: 0.2
+  generator_temperature: 0.5
+  # One and only one schema-repair retry is allowed for structured outputs.
+  max_schema_repair_attempts: 1
+  request_timeout_s: 60
+
+retrieval:
+  top_k: 4
+  # Hybrid fusion weights. Applied to normalized scores; must be deterministic.
+  bm25_weight: 0.6
+  embedding_weight: 0.4
+  # Embedding retrieval is optional. When the model or dependency is missing the
+  # system degrades to lexical-only mode and keeps working.
+  use_embeddings: false
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2
+  # Near-duplicate suppression on returned passages (Jaccard over token sets).
+  dedup_jaccard_threshold: 0.85
+  min_score: 0.0
+  chunk:
+    target_tokens: 220
+    overlap_tokens: 40
+    min_tokens: 40
+
+pedagogy:
+  hint_level_min: 0
+  hint_level_max: 4
+  # Evidence-weighted mastery update parameters.
+  mastery:
+    correct_gain: 0.18
+    partial_gain: 0.09
+    incorrect_penalty: 0.07
+    unclear_penalty: 0.0
+    # Each additional observation of the same concept has diminishing impact:
+    # effective_delta = delta / (1 + decay * evidence_count)
+    diminishing_decay: 0.35
+    confidence_gain: 0.12
+    mastery_floor: 0.0
+    mastery_ceiling: 1.0
+  misconception:
+    initial_confidence: 0.6
+    reinforce_gain: 0.15
+    resolve_decay: 0.45
+    deactivate_below: 0.25
+  # A learner is considered to have demonstrated a concept at/above this score.
+  demonstrated_threshold: 0.7
+  uncertain_band: [0.25, 0.7]
+
+limits:
+  max_tool_calls_per_turn: 3
+  max_revisions_per_turn: 2
+  max_decision_steps_per_turn: 4
+
+context:
+  # Recent verbatim dialogue turns handed to the LLM.
+  recent_dialogue_turns: 6
+  # Older history is compressed into a rolling summary of at most N characters.
+  summary_max_chars: 900
+  # Previous hints for the active exercise are always included (bounded).
+  max_previous_hints: 5
+  max_passage_chars: 1100
+
+safety:
+  # Deterministic leakage detector thresholds.
+  deterministic:
+    ngram_size: 5
+    ngram_overlap_threshold: 0.16
+    phrase_min_words: 7
+    answer_unit_overlap_threshold: 0.5
+    # Longest common token run that counts as verbatim copying.
+    max_verbatim_run: 12
+    # Any single answer unit covered above this ratio is a leak on its own.
+    single_unit_cover_threshold: 0.72
+  judge:
+    enabled: true
+    # If the judge call fails, fall back to this verdict (fail closed-ish).
+    on_error_verdict: REVISE
+  # Hint levels at/above this may reveal more structure, but never a full solution.
+  high_hint_level: 3
+
+storage:
+  db_path: data/tutor.sqlite3
+  searchable_dir: data/searchable
+  exercises_dir: data/exercises
+  protected_dir: data/protected
+  raw_dir: data/raw
+
+tracing:
+  enabled: true
+  # Store full prompts in traces. Useful for debugging, larger DB.
+  store_prompts: false
+  max_traces_returned: 50

@@ -1,0 +1,53 @@
+{
+  "doc_id": "winter2023_his",
+  "source_pdf": "data/raw/winter2023_his.pdf",
+  "pages": 285,
+  "regions": {
+    "body": [
+      30,
+      261
+    ],
+    "solutions": [
+      262,
+      271
+    ],
+    "glossary": [
+      272,
+      282
+    ],
+    "index": [
+      283,
+      285
+    ]
+  },
+  "sections": 85,
+  "glossary_terms": 160,
+  "exercises": 25,
+  "solutions": 25,
+  "chunks": 648,
+  "chunk_kinds": {
+    "exercise": 25,
+    "glossary": 160,
+    "textbook": 463
+  },
+  "exercises_without_solution": [],
+  "solutions_without_exercise": [],
+  "separation": {
+    "provenance_verified": true,
+    "reproduction_verified": true,
+    "worst_overlap": {
+      "exercise_id": "5.6.1",
+      "solution_tokens": 183,
+      "ngram_coverage": 0.2443,
+      "max_verbatim_run": 24,
+      "run_ratio": 0.1311,
+      "closest_chunk": "winter2023_his:exercise:5.6.1"
+    }
+  },
+  "warnings": [],
+  "paths": {
+    "corpus": "/Users/kilian/Desktop/medical_ai_tutor/data/searchable/corpus.jsonl",
+    "exercises": "/Users/kilian/Desktop/medical_ai_tutor/data/exercises/exercises.json",
+    "protected": "/Users/kilian/Desktop/medical_ai_tutor/data/protected/solutions.json"
+  }
+}

@@ -1,0 +1,35 @@
+suite: learner_adaptation
+dimension: adaptation
+# The same question, three learner states. Case ids are `<question>__<level>`;
+# the metrics module groups on that separator and asserts the actions differ.
+cases:
+  - id: what_is_interoperability__beginner
+    initial_state:
+      current_topic: interoperability
+      concept_mastery: { interoperability: 0.05 }
+    turns:
+      - message: "What is interoperability in a health information system?"
+        expect:
+          action_in: [EXPLAIN_CONCEPT]
+          retrieval: true
+
+  - id: what_is_interoperability__intermediate
+    initial_state:
+      current_topic: interoperability
+      concept_mastery: { interoperability: 0.45 }
+    turns:
+      - message: "What is interoperability in a health information system?"
+        expect:
+          action_in: [ASK_SOCRATIC]
+          retrieval: false
+
+  - id: what_is_interoperability__advanced
+    initial_state:
+      current_topic: interoperability
+      concept_mastery: { interoperability: 0.88 }
+      demonstrated_concepts: [interoperability]
+    turns:
+      - message: "What is interoperability in a health information system?"
+        expect:
+          action_in: [CHALLENGE]
+          retrieval: false

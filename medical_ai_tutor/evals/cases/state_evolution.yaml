@@ -1,0 +1,57 @@
+suite: state_evolution
+dimension: state
+cases:
+  - id: mastery_rises_with_correct_evidence
+    initial_state:
+      current_topic: interoperability
+      concept_mastery: { interoperability: 0.3 }
+      previous_actions: [ASK_SOCRATIC]
+    turns:
+      - message: >-
+          Interoperability is not only about transporting a message, because the receiving
+          system also has to interpret the coded values the same way the sender meant them.
+        expect:
+          state_mastery_at_least: { interoperability: 0.35 }
+          state_action_recorded: true
+
+  - id: misconception_created_then_resolved
+    turns:
+      - message: "I think normalization just means splitting a large table into smaller tables."
+        expect:
+          state_misconception_active: normalization
+          action_in: [CORRECT_MISCONCEPTION]
+      - message: >-
+          Actually that is not enough, because the same patient address can still appear in both
+          tables and become inconsistent, so the dependencies matter.
+        expect:
+          state_misconception_resolved: normalization
+          state_mastery_at_least: { normalization: 0.1 }
+
+  - id: hint_level_advances_one_step_at_a_time
+    exercise_id: "3.12.4"
+    initial_state:
+      current_topic: integration
+      concept_mastery: { integration: 0.4 }
+      previous_actions: [ASK_SOCRATIC]
+      attempt_count: 1
+    turns:
+      - message: "I would say a communication server just forwards the messages."
+        expect:
+          action_in: [GIVE_HINT]
+          state_hint_level: 1
+          no_leakage: true
+      - message: "I would say it also translates between the formats of the systems."
+        expect:
+          state_hint_level: 2
+          no_leakage: true
+
+  - id: attempt_count_tracks_student_attempts
+    initial_state:
+      current_topic: data_quality
+    turns:
+      - message: "I think data quality is mostly about avoiding typing errors."
+        expect:
+          state_attempt_count: 1
+      - message: "I would also count completeness and timeliness as part of it."
+        expect:
+          state_attempt_count: 2

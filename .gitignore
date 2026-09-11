@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+# Never commit a real API key.
+medical_ai_tutor/local_settings.py
+data/tutor.sqlite3
+data/raw/*.pdf
+data/index/
+.pytest_cache/
+artifacts/

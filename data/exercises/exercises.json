@@ -1,0 +1,334 @@
+[
+  {
+    "exercise_id": "1.5.1",
+    "title": "Life Situations",
+    "question": "Consider a recent health-related situation you were involved in. Which life situation (Sect. 1.2) does it correspond to and what was your role in this life situation (Sect. 1.3)? List some of the requirements you had in this role and in this life situation.",
+    "chapter": "1",
+    "page": 40,
+    "concepts": [
+      "stakeholders"
+    ],
+    "protected_unit_count": 5,
+    "protected": true
+  },
+  {
+    "exercise_id": "1.5.2",
+    "title": "Requirements of Various Stakeholders",
+    "question": "Consider the requirements of various stakeholders when it comes to health information systems supporting various life situations. Can you imagine situations where the requirements of two stakeholder groups differ or even contradict each other? What does this imply when building health information systems? Reference 1. World Health Organization (WHO) Constitution. (1946, July 22). https://www.who.int/about/ governance/constitution. Accessed 15 Jan 2023. adaptation, distribution and reproduction in any medium or format, as long as you give appropriate indicate if changes were made. The images or other third party material in this chapter are included in the chapter's Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not Basic Concepts and Terms",
+    "chapter": "1",
+    "page": 41,
+    "concepts": [
+      "health_information_system",
+      "information_management",
+      "stakeholders"
+    ],
+    "protected_unit_count": 4,
+    "protected": true
+  },
+  {
+    "exercise_id": "2.16.1",
+    "title": "Data, Information, and Knowledge",
+    "question": "Imagine that a physician is given the following information about his patient, Mr. Russo: “Diagnosis: hypertension. Last blood pressure measurement: 160/100 mmHg.” Use this example to discuss the difference between “data,” “information,” and “knowledge”!",
+    "chapter": "2",
+    "page": 76,
+    "concepts": [
+      "data_information_knowledge"
+    ],
+    "protected_unit_count": 3,
+    "protected": true
+  },
+  {
+    "exercise_id": "2.16.2",
+    "title": "Systems and Subsystems",
+    "question": "Look up some information on the nervous system of the human body. Then try to identify subsystems of the nervous system. In the same way, can you also describe subsystems of the system “hospital”?",
+    "chapter": "2",
+    "page": 76,
+    "concepts": [],
+    "protected_unit_count": 7,
+    "protected": true
+  },
+  {
+    "exercise_id": "2.16.3",
+    "title": "Information Logistics",
+    "question": "Imagine a situation in which a physician speaks with Mr. Russo at the patient’s bedside. The physician looks up Mr. Russo’s recent blood pressure measurement and ongoing medication, decides to increase the level of one medication, and explains this to Mr. Russo. Use this example to discuss the meaning of “information and knowledge logistics.” What in this example indicates the right information, the right place, the right people, the right form, and the right decision? What could happen if an information system does not support high-quality information and knowledge logistics?",
+    "chapter": "2",
+    "page": 77,
+    "concepts": [
+      "data_information_knowledge"
+    ],
+    "protected_unit_count": 2,
+    "protected": true
+  },
+  {
+    "exercise_id": "2.16.4",
+    "title": "3LGM2 Metamodel",
+    "question": "Look at the 3LGM22 example in Sect. 2.15. Use this example to explain the meaning of the following elements: functions, entity types, application systems, noncomputer- based application components, physical data processing system, and inter-layer relationships.",
+    "chapter": "2",
+    "page": 77,
+    "concepts": [
+      "3lgm2",
+      "application_systems"
+    ],
+    "protected_unit_count": 4,
+    "protected": true
+  },
+  {
+    "exercise_id": "2.16.5",
+    "title": "Interpreting 3LGM2 Models",
+    "question": "Look at the 3LGM2 sample model in Sect. 2.15 and try to answer the following questions. (a) Find examples of specialization or decomposition at the domain layer in (b) What is the meaning of the arrows pointing from patient identification to “patient” and from “patient” to medical admission in Fig. 2.11? (c) What entity type that is stored in the paper-based patient data privacy form system should be added at the domain layer in Fig. 2.11? (d) Why is the function patient admission not connected with any application system in Fig. 2.11? (Hint: Look at the graphical representation of the domain layer in Fig. 2.11 and remember the modeling rules from Sect. 2.14.5.) (e) Which physical data processing systems are needed for the function “obtaining patient consent for the processing of data”? References 49 References 1. World Health Organization (WHO) Health Promotion Glossary. WHO/HPR/HEP/98.1. 1998. 2. Institute of Electrical and Electronics Engineers (2000). IEEE-Std 1471-2000: recommended practice for architectural description of software-intensive systems. http://standards.ieee.org. Accessed 15 Jan 2023. 3. Weill P, Ross JW. IT Governance. How top performers manage IT decision rights for superior results. Harvard: Harvard Business School Press; 2004. p. 34ff. adaptation, distribution and reproduction in any medium or format, as long as you give appropriate indicate if changes were made. The images or other third party material in this chapter are included in the chapter's Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not Technological Perspective: Architecture, Integration, and Standards",
+    "chapter": "2",
+    "page": 77,
+    "concepts": [
+      "interoperability",
+      "integration",
+      "architectural_styles",
+      "information_management"
+    ],
+    "protected_unit_count": 10,
+    "protected": true
+  },
+  {
+    "exercise_id": "3.12.1",
+    "title": "Domain Layer: Differences in Hospital Functions",
+    "question": "Look at the functions presented in Sect. 3.3.2. Now imagine a small hospital (e.g., 350 beds) and a large university medical center (e.g., 1500 beds). What are the differences between these hospitals with regard to their functions? Explain your answer.",
+    "chapter": "3",
+    "page": 178,
+    "concepts": [
+      "3lgm2"
+    ],
+    "protected_unit_count": 4,
+    "protected": true
+  },
+  {
+    "exercise_id": "3.12.2",
+    "title": "Domain Layer: Different Health care Professional",
+    "question": "Groups and Health care Facilities Look at the functions listed in Sect. 3.3.2. Look at the relationships between the functions and the different health care professional groups (physicians, nurses, administrative staff, others) working in hospitals and medical offices. Select one health care professional group and describe which functions are most important for this group.",
+    "chapter": "3",
+    "page": 178,
+    "concepts": [
+      "3lgm2",
+      "health_care_settings"
+    ],
+    "protected_unit_count": 3,
+    "protected": true
+  },
+  {
+    "exercise_id": "3.12.3",
+    "title": "Domain Layer: The Patient Entity Type",
+    "question": "Look at the entity type “patient” that is interpreted and updated by various functions. Which functions update the patient information, which functions interpret it?",
+    "chapter": "3",
+    "page": 178,
+    "concepts": [
+      "3lgm2"
+    ],
+    "protected_unit_count": 1,
+    "protected": true
+  },
+  {
+    "exercise_id": "3.12.4",
+    "title": "Logical Tool Layer: Communication Server",
+    "question": "Imagine a hospital information system that comprises four application systems: a PAS, an MDMS, a RIS, and a PDMS. The hospital is now considering the introduction of a communication server to improve data integration. Discuss the short-term and long-term pros and cons of this decision. Which syntactic and semantic standards could be used?",
+    "chapter": "3",
+    "page": 179,
+    "concepts": [
+      "health_information_system",
+      "interoperability",
+      "integration",
+      "3lgm2"
+    ],
+    "protected_unit_count": 6,
+    "protected": true
+  },
+  {
+    "exercise_id": "3.12.5",
+    "title": "Logical Tool Layer: Integration from the User’s",
+    "question": "Point of View During a night shift, a nurse uses the patient administration system to conduct the administrative patient admission. The nurse then uses the NMDS to plan nursing care. Now consider the types of integration presented in Sect. 3.8 and discuss how this nurse would recognize a high (or low) level of data integration, semantic integration, user interface integration, context integration, feature integration, and process integration.",
+    "chapter": "3",
+    "page": 179,
+    "concepts": [
+      "integration",
+      "3lgm2"
+    ],
+    "protected_unit_count": 9,
+    "protected": true
+  },
+  {
+    "exercise_id": "3.12.6",
+    "title": "CityCare",
+    "question": "The following questions can be answered by reading the text and analyzing the 3LGM2 figures of the CityCare Example 3.11. (a) The EHRS and the VNA in CityCare are not linked with any function they support. Which function of the domain layer may (partly) be supported by these application systems? Which functions (as introduced in Sect. 3.3) that are supported by these application systems could be added at the domain layer? (b) In which database systems shown in the logical tool layer (Fig. 3.34) should the entity type “patient” be stored? (c) The MPI should receive messages containing PINs (entity type “patient”) from all patient administration systems. Why is there no communication link between the MPI and the patient administration system of Ernst Jokl Hospital? (d) According to the matrix view, which functions are supported redundantly in CityCare? Discuss pros and cons of the functional redundancies in this scenario. What redundancies would you resolve and how? (e) Which functions in which health care facility cannot be performed anymore if “Application Server 1 Ernst Jokl Hospital” fails? Suggest a change to the physical tool layer that would minimize the risk of missing function support in case a single application server fails. (f) For the CityCare network, would it make sense to implement further profiles from IHE? Explain your decision. References 1. European Parliament. General Data Protection Regulation (GDPR). 2016. https://eurlex. europa.eu/legalcontent/EN/TXT/PDF/?uri=CELEX:32016R0679&from=EN. Accessed 15 Jan 2023. 2. Roach KE, Budiman-Mak E, Songsiridej N, Lertratanakul Y. Development of a shoulder pain and disability index. Arthritis Care Res. 1991;4(4):143–9. 3. SNOMED International. CT Editorial Guide: Procedure. 2021. https://confluence.ihtsdotools. org/display/DOCEG/Procedure. Accessed 15 Jan 2023. 4. World Health Organization (WHO). ICD-11 International Classification of Diseases 11th Revision. Geneva: World Health Organization; 2021. https://icd.who.int/en. Accessed 15 Jan 2023 5. Cimino JJ. Infobuttons. 2011. https://people.dbmi.columbia.edu/~ciminoj/infobuttons.html. Accessed 15 Jan 2023. 6. International Standards Organization. ISO/TR 22221:2006 Health Informatics—Good principles and practices for a clinical data warehouse. 2021. https://www.iso.org/standard/40783. html. Accessed 15 Jan 2023. 7. European Parliament. Directive 1999/93/EC of the European Parliament and of the council of 13 December 1999 on a Community framework for electronic signatures. 1999. https://eur- - lex.europa.eu/legalcontent/EN/TXT/PDF/?uri=CELEX:31999L0093. Accessed 15 Jan 2023. 8. European Telecommunications Standards Institute. ETSI White Paper No. 3—Achieving Technical Interoperability. 2008. https://portal.etsi.org/CTI/Downloads/ETSIApproach/ IOP%20whitepaper%20Edition%203%20final.pdf. Accessed 15 Jan 2023. 9. HL7 International. Health Level Seven Version 2 (V2) Product Suite. 2021. http://www.hl7. org/implement/standards/product_brief.cfm?product_id=185. Accessed 15 Jan 2023. 10. HL7 International. Examples section of the v3Guide. 2008. https://wiki.hl7.org/index. php?title=Examples_section_of_the_v3Guide. Accessed 15 Jan 2023. 11. Digital Imaging and Communication in Medicine. The DICOM Standard. 2021. https://www. dicomstandard.org. Accessed 15 Jan 2023. 12. Integrating the Health Care Enterprise (IHE). Making Healthcare Interoperable. 2021. https:// www.ihe.net. Accessed 15 Jan 2023. 13. International Standards Organization. ISO/IEEE 11073–20701:2020 Health Informatics— Device interoperability—Point-of-care medical device communication. 2020. https://www. iso.org/standard/78227.html. Accessed 15 Jan 2023. 14. SNOMED International. SNOMED CT Browser. 2021. https://browser.ihtsdotools.org/. Accessed 15 Jan 2023. 15. LOINC from Regenstrief. LOINC The international standard for identifying health measurements, observations, and documents. 2021. https://loinc.org. Accessed 15 Jan 2023. adaptation, distribution and reproduction in any medium or format, as long as you give appropriate indicate if changes were made. The images or other third party material in this chapter are included in the chapter's Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not Management Perspective: Scopes and Tasks of Managing Health Information Systems",
+    "chapter": "3",
+    "page": 179,
+    "concepts": [
+      "health_information_system",
+      "electronic_health_record",
+      "interoperability",
+      "3lgm2"
+    ],
+    "protected_unit_count": 12,
+    "protected": true
+  },
+  {
+    "exercise_id": "4.9.1",
+    "title": "A ctivities of Managing Information Systems",
+    "question": "In Sect. 4.2, we introduced a three-dimensional classification of activities of management of information systems (Fig. 4.2). How would you describe the scope and tasks of the following activities of managing information systems? • Developing a strategic information management plan (e.g., this is related to strategic planning), • Initiating projects from the strategic project portfolio, • Collection and analysis of data from user surveys on their general satisfaction with the health information system, • Planning a project to select and introduce a new CPOE system, • Executing work packages within an evaluation project of a CPOE system, • Assessment of user satisfaction with a new intensive care system, • Planning of a user service desk for a group of clinical application components, • Operation of a service desk for a group of clinical application components, • Daily monitoring of network availability and network failures.",
+    "chapter": "4",
+    "page": 214,
+    "concepts": [
+      "health_information_system",
+      "information_management",
+      "evaluation",
+      "application_systems"
+    ],
+    "protected_unit_count": 1,
+    "protected": true
+  },
+  {
+    "exercise_id": "4.9.2",
+    "title": "Strategic Alignment of Hospital Goals and Information",
+    "question": "Management Goals Imagine you are the CIO of a hospital in which almost no computer-based tools are used. One of the hospital’s goals is to support health care professionals in their daily tasks by offering up-to-date patient information at their workplace. Which main goals for management of information systems could you define based on this information? Which functions should be prioritized to be supported by new application systems? What could a strategic project portfolio and a migration plan for the next 5 years look like?",
+    "chapter": "4",
+    "page": 214,
+    "concepts": [
+      "information_management",
+      "application_systems"
+    ],
+    "protected_unit_count": 6,
+    "protected": true
+  },
+  {
+    "exercise_id": "4.9.3",
+    "title": "Structure of a Strategic Information Management Plan",
+    "question": "In Sect. 4.8.1, we presented the structure of the strategic information management plan of Ploetzberg Hospital. Compare its structure to the general structure presented in Sect. 4.3.1.2, consisting of strategic goals, description of current state, assessment of current state, future state, and migration path. Where can you find this general structure in Ploetzberg Hospital’s plan?",
+    "chapter": "4",
+    "page": 215,
+    "concepts": [
+      "information_management"
+    ],
+    "protected_unit_count": 1,
+    "protected": true
+  },
+  {
+    "exercise_id": "4.9.4",
+    "title": "A n Information-Processing Monitoring Report",
+    "question": "Look at the health information system’s KPIs of Ploetzberg Hospital in Example 4.8.2. Try to figure out some of these numbers for a real hospital and compare both hospitals’ KPIs in the form of a benchmarking report. It may help to look at the strategic information management plan of this hospital or at its website.",
+    "chapter": "4",
+    "page": 215,
+    "concepts": [
+      "health_information_system",
+      "information_management"
+    ],
+    "protected_unit_count": 1,
+    "protected": true
+  },
+  {
+    "exercise_id": "4.9.5",
+    "title": "Relevant Key Performance Indicators (KPIs)",
+    "question": "Imagine you are the CIO and have to select the three most relevant indicators for the quality of your information system at your hospital: Which would you select? You can look at the examples in Sect. 4.8.2 to get ideas. Explain your choice.",
+    "chapter": "4",
+    "page": 215,
+    "concepts": [
+      "information_management",
+      "evaluation"
+    ],
+    "protected_unit_count": 4,
+    "protected": true
+  },
+  {
+    "exercise_id": "4.9.6",
+    "title": "Organizing User Feedback",
+    "question": "You are asked to organize regular (e.g., every half year) quantitative user feedback on the general user satisfaction with major clinical application components of your hospital as part of health information system’s monitoring. Which user groups would you consider? How could you gather user feedback regularly in an automatic way? Explain your choice.",
+    "chapter": "4",
+    "page": 215,
+    "concepts": [
+      "health_information_system",
+      "application_systems"
+    ],
+    "protected_unit_count": 4,
+    "protected": true
+  },
+  {
+    "exercise_id": "4.9.7",
+    "title": "Information Systems Managers as Architects",
+    "question": "Information systems managers can be partly compared to architects. Read the following statement and discuss similarities and differences between information system architects and building architects [8]: “We are architects. […] We have designed numerous buildings, used by many people. […] We know what users want. We know their complaints: buildings that get in the way of the things they want to do. […] We also know the users’ joy of relaxing, working, learning, buying, manufacturing, and worshipping in buildings which were designed with love and care as well as function in mind. […] We are committed to the belief that buildings can help people to do their jobs or may impede them and that good buildings bring joy as well as efficiency.” References 1. Mathur S. Project portfolio management techniques. Paper presented at PMI® Global Congress 2006—Asia Pacific, Bangkok, Thailand. Newtown Square, PA: Project Management Institute; 2006. 2. National Health System (NHS). Digital maturity assessment. 2017. https://www.england.nhs. uk/digitaltechnology/connecteddigitalsystems/maturityindex. Accessed 15 Jan 2023. 3. Ammenwerth E, Rigby M. Evidence-based health informatics—promoting safety and efficiency through scientific methods and ethical policy. Amsterdam: IOS Press; 2016. Gesundheitswesen. 2nd ed. Stuttgart: Schattauer-Verlag; 2014. 5. Axelos. ITIL Foundation: ITIL 4th edn. TSO (The Stationery Office); 2019. 6. Weill P, Ross JW. IT Governance—how top performers manage IT decisions right for superior results. Boston, MA: Harvard Business school press; 2004. 7. ISACA Germany Chapter. COBIT. 2021. https://www.isaca.de/de/veroeffentlichungen/cobit. Accessed 15 Jan 2023. 8. Caudill WW, Pena W, Kennon P. Architecture and You. New York: Whitney Library of Design; 1978. p. 6. adaptation, distribution and reproduction in any medium or format, as long as you give appropriate indicate if changes were made. The images or other third party material in this chapter are included in the chapter's Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not Quality of Health Information Systems",
+    "chapter": "4",
+    "page": 215,
+    "concepts": [
+      "health_information_system",
+      "architectural_styles",
+      "information_management",
+      "evaluation"
+    ],
+    "protected_unit_count": 6,
+    "protected": true
+  },
+  {
+    "exercise_id": "5.6.1",
+    "title": "Quality of Integration",
+    "question": "Read the following case descriptions and discuss the integration problems using the types of integration presented in Sect. 5.3.4. Which negative effects for information logistics result from the identified integration problems? 1. A physician enters a medical diagnosis for a patient first in the medical documentation and management system (MDMS) and later, when ordering an X-ray, again in the CPOE system. 2. The position of the patient’s name and the formatting of the patient’s birthdate vary between the MDMS and the CPOE system. 3. When physicians shift from the MDMS to the CPOE system, they have to log in again and again search for the correct patient. 4. The CPOE system and the RIS use slightly different catalogs of available radiology examinations. 5. When physicians write the discharge letter for a patient in the MDMS, they also have to code the discharge diagnosis of a patient. For this coding, they have to use a feature that is only available in the patient administration system, so they have to shift to this application system. 6. While at the patient’s bedside during their ward rounds, physicians have to use several application components at the same time, such as MDMS for retrieving recent findings, the CPOE system for ordering, and the PACS for retrieving images.",
+    "chapter": "5",
+    "page": 236,
+    "concepts": [
+      "integration",
+      "evaluation",
+      "application_systems"
+    ],
+    "protected_unit_count": 7,
+    "protected": true
+  },
+  {
+    "exercise_id": "5.6.2",
+    "title": "Data Collection in Evaluation Studies",
+    "question": "Read Examples 5.5.1 and 5.5.2 and determine which methods for collecting data (as described in Sects. 5.4.3 and 5.4.4) have been used. References 209",
+    "chapter": "5",
+    "page": 236,
+    "concepts": [
+      "evaluation"
+    ],
+    "protected_unit_count": 4,
+    "protected": true
+  },
+  {
+    "exercise_id": "5.6.3",
+    "title": "Study Design in Evaluation Studies",
+    "question": "Read Examples 5.5.1 and 5.5.2 and describe the chosen study design in more detail, using the description presented in Sect. 5.4.2. Try to explain for which types of study questions the RCT is the best study design. References 1. ISACA. COBIT—Effective IT Governance at Your Fingertips. 2021. https://www.isaca.org/ resources/cobit. Accessed 15 Jan 2023. 2. Axelos. ITIL Foundation: ITIL. 4th edn. TSO (The Stationery Office); 2019. 3. Ammenwerth E, Rigby M. Evidence-based health informatics—promoting safety and efficiency through scientific methods and ethical policy. Amsterdam: IOS Press; 2016. 4. Price M, Lau F. The clinical adoption meta-model: a temporal meta-model describing the clinical adoption of health information systems. BMC Med Inform Decis Mak. 2014;14:43. 5. Strom BL, Schinnar R, Aberra F, Bilker W, Hennessy S, Leonard CE, Pifer E. Unintended effects of a computerized physician order entry nearly hard-stop alert to prevent a drug interaction: a randomized controlled trial. Arch Intern Med. 2010;170(17):1578–83. 6. Ash JS, Chase D, Baron S, Filios MS, Shiffman RN, Marovich S, Wiesen J, Luensman GB. Clinical decision support for worker health: a five-site qualitative needs assessment in primary care settings. Appl Clin Inform. 2020;11(4):635–43. 7. European Commission. Regulation 2017/745 on Medical Devices of 5 April 2017. 2017. =DE. Accessed 15 Jan 2023. 8. Federal Institute for Drugs and Medical Devices. DiGA—Digital Health Applications. 2021. 9. The Office of the National Coordinator for Health Information Technology (ONC). About the ONC Health IT Certification Program. 2021. https://www.healthit.gov/topic/certificationehrs/ aboutonchealthitcertificationprogram. Accessed 15 Jan 2023. 10. IHE International. Integrating the Healthcare Enterprise (IHE). 2021. https://www.ihe.net. Accessed 15 Jan 2023. 11. International Organization for Standardization. ISO 9000 Family on Quality Management. 12. International Organization for Standardization. ISO/IEC 27001 Information Security Management. 2021. https://www.iso.org/isoiec- 27001- informationsecurity.html. Accessed 15 Jan 2023. 13. Joint Commission. https://www.jointcommissioninternational.org. Accessed 15 Jan 2023. adaptation, distribution and reproduction in any medium or format, as long as you give appropriate indicate if changes were made. The images or other third party material in this chapter are included in the chapter's Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not Information Systems for Specific Health Care and Research Settings",
+    "chapter": "5",
+    "page": 237,
+    "concepts": [
+      "health_information_system",
+      "electronic_health_record",
+      "interoperability",
+      "information_management"
+    ],
+    "protected_unit_count": 3,
+    "protected": true
+  },
+  {
+    "exercise_id": "6.12.1",
+    "title": "Research Architecture",
+    "question": "A clinical researcher at Ploetzberg Hospital has won a grant to set up a register for patients who have received a knee endoprosthesis. Disease registers are research databases for collecting data about a specific disease, aiming for full coverage of the respective patient collective. The aim of a knee endoprosthesis registry is to collect longitudinal data to find out which type of endoprosthesis works best over time. The researcher wants to integrate data from patient-reported outcome questionnaires, findings from inpatient or outpatient visits at the hospital, and results from laboratory examinations. Which entity types need to be integrated and from which application components do they come? Devise a plan how you would set up a sustainable research architecture, i.e., an architecture that also could be used in other research settings and for different disease or research entities, considering Sect. 6.6.",
+    "chapter": "6",
+    "page": 260,
+    "concepts": [
+      "architectural_styles",
+      "evaluation",
+      "application_systems"
+    ],
+    "protected_unit_count": 4,
+    "protected": true
+  },
+  {
+    "exercise_id": "6.12.2",
+    "title": "Medical Admission",
+    "question": "In which of the health care settings above will the function medical admission need to be supported? References 1. Grabovac I, Dorner TE. Work ability management in rehabilitation and return to work: a perspective from austria. In: Johansen T, Dittrisch WH, editors. Occupational health and rehabilitation: new approaches for maintaining work ability in the workplace. Wiesbaden: Springer Gabler; 2021. p. 25–34. 2. World Health Organization. Classification of digital health interventions v1.0: A shared language to describe the uses of digital technology for health. World Health Organization (WHO); 2018. https://www.who.int/publications/i/item/WHO-RHR-18.06. Accessed 15 Jan 2023. 3. Ammenwerth E, Duftschmid G, Al-Hamdan Z, Bawadi H, Cheung NT, Cho K-H, et al. International comparison of six basic eHealth indicators across 14 countries: an eHealth Benchmarking study. Methods Inf Med. 2020;59(S 02):e46–63. 4. Winter A, Stäubert S, Ammon D, Aiche S, Beyan O, Bischoff V, et al. Smart Medical Information Technology for Healthcare (SMITH): data integration based on interoperability standards. Methods Inf Med. 2018;57(Open 1):e92–e105. adaptation, distribution and reproduction in any medium or format, as long as you give appropriate indicate if changes were made. The images or other third party material in this chapter are included in the chapter's Creative Commons license, unless indicated otherwise in a credit line to the material. If material is not",
+    "chapter": "6",
+    "page": 261,
+    "concepts": [
+      "interoperability",
+      "integration",
+      "application_systems",
+      "health_care_settings"
+    ],
+    "protected_unit_count": 6,
+    "protected": true
+  }
+]
