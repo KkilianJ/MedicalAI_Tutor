@@ -9,3 +9,4 @@ data/raw/*.pdf
 data/index/
 .pytest_cache/
 artifacts/
+.idea/

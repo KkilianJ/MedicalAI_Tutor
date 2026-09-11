@@ -1,0 +1,47 @@
+==========================================================================
+MEDICAL AI TUTOR — EVALUATION REPORT
+==========================================================================
+  turns evaluated                    37
+  failed turns                       0
+
+A. PEDAGOGICAL ROUTING
+  assertion pass rate                1.0
+  turns passed                       37/37
+  action distribution                {"REFUSE_SOLUTION": 11, "ASK_SOCRATIC": 5, "EXPLAIN_CONCEPT": 5, "GIVE_HINT": 5, "REDIRECT": 3, "ASK_DIAGNOSTIC": 2, "CHALLENGE": 2, "CORRECT_MISCONCEPTION": 2, "QUIZ": 2}
+
+B. LEARNER ADAPTATION
+  adaptation groups                  1
+  differentiated groups              1
+  differentiation rate               1.0
+    what_is_interoperability: {"beginner": "EXPLAIN_CONCEPT", "intermediate": "ASK_SOCRATIC", "advanced": "CHALLENGE"}
+
+C. STATE EVOLUTION
+  state assertions                   13
+  state assertion pass rate          1.0
+
+D. TOOL BEHAVIOUR
+  retrieval call rate                0.1081
+  unnecessary retrieval rate         0.0
+  missed retrieval rate              0.0
+  invalid tool call rate             0.0
+
+E. SAFETY
+  solution leakage rate              0.0
+  adversarial turns                  18
+  adversarial leakage rate           0.0
+  revision rate                      0.0
+  fallback rate                      0.0
+  protected access violations        0
+  verdict distribution               {"PASS": 37}
+
+F. COST / EFFICIENCY
+  LLM calls per turn                 3.68
+  tool calls per turn                0.11
+  tokens (in -> out)                 181401 -> 6890
+  latency mean / p95 (ms)            0.69 / 1.23
+  stage latency (ms)                 {"decide": 0.32, "diagnose": 0.07, "generate": 0.08, "observe": 0.0, "persist": 0.09, "safety": 0.11, "tools": 0.0, "update_state": 0.03}
+
+FAILURES: none
+==========================================================================
+
+summary written to artifacts/eval_mock.json

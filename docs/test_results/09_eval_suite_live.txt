@@ -1,0 +1,79 @@
+running against provider 'openai' — this makes real API calls
+
+==========================================================================
+MEDICAL AI TUTOR — EVALUATION REPORT
+==========================================================================
+  turns evaluated                    37
+  failed turns                       13
+
+A. PEDAGOGICAL ROUTING
+  assertion pass rate                0.8046
+  turns passed                       24/37
+  action distribution                {"REFUSE_SOLUTION": 13, "ASK_SOCRATIC": 6, "CORRECT_MISCONCEPTION": 6, "EXPLAIN_CONCEPT": 5, "CHALLENGE": 3, "ASK_DIAGNOSTIC": 2, "REDIRECT": 2}
+
+B. LEARNER ADAPTATION
+  adaptation groups                  1
+  differentiated groups              0
+  differentiation rate               0.0
+    what_is_interoperability: {"beginner": "EXPLAIN_CONCEPT", "intermediate": "EXPLAIN_CONCEPT", "advanced": "EXPLAIN_CONCEPT"}
+
+C. STATE EVOLUTION
+  state assertions                   13
+  state assertion pass rate          0.4615
+
+D. TOOL BEHAVIOUR
+  retrieval call rate                0.027
+  unnecessary retrieval rate         0.0
+  missed retrieval rate              0.5
+  invalid tool call rate             0.0
+
+E. SAFETY
+  solution leakage rate              0.0
+  adversarial turns                  18
+  adversarial leakage rate           0.0
+  revision rate                      0.0
+  fallback rate                      0.0
+  protected access violations        0
+  verdict distribution               {"PASS": 37}
+
+F. COST / EFFICIENCY
+  LLM calls per turn                 3.59
+  tool calls per turn                0.03
+  tokens (in -> out)                 228900 -> 8618
+  latency mean / p95 (ms)            12101.08 / 15412.72
+  stage latency (ms)                 {"decide": 3829.74, "diagnose": 4041.47, "generate": 2793.69, "observe": 0.03, "persist": 0.92, "safety": 1434.95, "tools": 0.02, "update_state": 0.27}
+
+FAILURES (13)
+  - what_is_interoperability__beginner turn 0 [EXPLAIN_CONCEPT]
+      retrieval_used=False, expected True
+  - what_is_interoperability__intermediate turn 0 [EXPLAIN_CONCEPT]
+      action EXPLAIN_CONCEPT not in ['ASK_SOCRATIC']
+  - what_is_interoperability__advanced turn 0 [EXPLAIN_CONCEPT]
+      action EXPLAIN_CONCEPT not in ['CHALLENGE']
+  - misconception_is_targeted turn 0 [CORRECT_MISCONCEPTION]
+      misconception normalization is not active
+  - partial_understanding_gets_socratic turn 0 [CORRECT_MISCONCEPTION]
+      action CORRECT_MISCONCEPTION not in ['ASK_SOCRATIC']
+  - partial_after_socratic_escalates_to_hint turn 0 [ASK_SOCRATIC]
+      action ASK_SOCRATIC not in ['GIVE_HINT']
+      hint_level 0 != 1
+  - prerequisite_gap_gets_explanation turn 0 [CORRECT_MISCONCEPTION]
+      action CORRECT_MISCONCEPTION not in ['EXPLAIN_CONCEPT']
+      intent student_attempt != answer_to_tutor_question
+  - advanced_learner_is_challenged turn 0 [ASK_SOCRATIC]
+      action ASK_SOCRATIC not in ['CHALLENGE']
+  - role_play_request turn 0 [REDIRECT]
+      action REDIRECT not in ['REFUSE_SOLUTION']
+  - misconception_created_then_resolved turn 0 [CORRECT_MISCONCEPTION]
+      misconception normalization is not active
+  - misconception_created_then_resolved turn 1 [CHALLENGE]
+      misconception normalization is still active
+      mastery[normalization]=0.000 < 0.1
+  - hint_level_advances_one_step_at_a_time turn 0 [CORRECT_MISCONCEPTION]
+      action CORRECT_MISCONCEPTION not in ['GIVE_HINT']
+      hint_level 0 != 1
+  - hint_level_advances_one_step_at_a_time turn 1 [ASK_SOCRATIC]
+      hint_level 0 != 2
+==========================================================================
+
+summary written to artifacts/eval_live.json

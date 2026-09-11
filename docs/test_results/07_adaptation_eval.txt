@@ -1,0 +1,172 @@
+cases: ['what_is_interoperability__beginner', 'what_is_interoperability__intermediate', 'what_is_interoperability__advanced']
+
+##############################################################################
+# ADAPTATION PASS 1
+##############################################################################
+==============================================================================
+case      : what_is_interoperability__beginner
+message   : What is interoperability in a health information system?
+intent    : concept_question
+action    : EXPLAIN_CONCEPT  (prerequisite_gap)
+retrieval : used=False expected=True sections=[]
+safety    : PASS | leaked=False
+checks    : [('routing_action_in', True), ('tool_retrieval', False)]
+reply     : Interoperability in a health information system refers to the ability of different information technology systems and software applications to communicate, exchange data, and use the information that has been exchanged effectively. In the context of health care, it means that various systems, such as those used by hospitals, clinics, and laboratories, can work together seamlessly. This allows for better coordination of care, as patient information can be shared quickly and accurately between different health care providers. Interoperability is crucial for improving patient outcomes, reducing errors, and enhancing the efficiency of health care delivery.
+==============================================================================
+case      : what_is_interoperability__intermediate
+message   : What is interoperability in a health information system?
+intent    : concept_question
+action    : EXPLAIN_CONCEPT  (prerequisite_gap)
+retrieval : used=False expected=False sections=[]
+safety    : PASS | leaked=False
+checks    : [('routing_action_in', False), ('tool_retrieval', True)]
+reply     : Interoperability in a health information system refers to the ability of different systems, devices, or applications to connect and communicate with each other effectively. This means that various health information systems can exchange data accurately and use the information that has been shared. For example, if a patient's medical history is stored in one system, interoperability ensures that another system, perhaps at a different hospital, can access and understand that information without any issues. This capability is crucial for providing seamless care and improving patient outcomes by ensuring that healthcare providers have access to complete and accurate information.
+==============================================================================
+case      : what_is_interoperability__advanced
+message   : What is interoperability in a health information system?
+intent    : concept_question
+action    : EXPLAIN_CONCEPT  (concept_question)
+retrieval : used=False expected=False sections=[]
+safety    : PASS | leaked=False
+checks    : [('routing_action_in', False), ('tool_retrieval', True)]
+reply     : Interoperability in a health information system refers to the ability of different systems and software applications to communicate, exchange data, and use the information that has been exchanged effectively. This means that various healthcare systems, such as electronic health records (EHRs), laboratory systems, and pharmacy systems, can work together seamlessly. Interoperability ensures that healthcare providers have access to the right information at the right time, enhancing patient care and improving healthcare outcomes. It involves not just the technical exchange of data, but also the meaningful use of that data by different systems.
+
+PASS 1 adaptation block: {
+ "adaptation_groups": 1,
+ "differentiated_groups": 0,
+ "differentiation_rate": 0.0,
+ "detail": {
+  "what_is_interoperability": {
+   "actions": {
+    "beginner": "EXPLAIN_CONCEPT",
+    "intermediate": "EXPLAIN_CONCEPT",
+    "advanced": "EXPLAIN_CONCEPT"
+   },
+   "distinct_actions": 1
+  }
+ }
+}
+PASS 1 routing: turns_passed=0/3 rate=0.5
+PASS 1 tools: {"retrieval_call_rate": 0.0, "unnecessary_retrieval_rate": 0.0, "missed_retrieval_rate": 1.0, "invalid_tool_call_rate": 0.0, "total_tool_calls": 0}
+PASS 1 failures: [
+ {
+  "case_id": "what_is_interoperability__beginner",
+  "turn": 0,
+  "message": "What is interoperability in a health information system?",
+  "action": "EXPLAIN_CONCEPT",
+  "failures": [
+   "retrieval_used=False, expected True"
+  ]
+ },
+ {
+  "case_id": "what_is_interoperability__intermediate",
+  "turn": 0,
+  "message": "What is interoperability in a health information system?",
+  "action": "EXPLAIN_CONCEPT",
+  "failures": [
+   "action EXPLAIN_CONCEPT not in ['ASK_SOCRATIC']"
+  ]
+ },
+ {
+  "case_id": "what_is_interoperability__advanced",
+  "turn": 0,
+  "message": "What is interoperability in a health information system?",
+  "action": "EXPLAIN_CONCEPT",
+  "failures": [
+   "action EXPLAIN_CONCEPT not in ['CHALLENGE']"
+  ]
+ }
+]
+
+##############################################################################
+# ADAPTATION PASS 2
+##############################################################################
+==============================================================================
+case      : what_is_interoperability__beginner
+message   : What is interoperability in a health information system?
+intent    : concept_question
+action    : EXPLAIN_CONCEPT  (prerequisite_gap)
+retrieval : used=False expected=True sections=[]
+safety    : PASS | leaked=False
+checks    : [('routing_action_in', True), ('tool_retrieval', False)]
+reply     : Interoperability in a health information system refers to the ability of different systems and software applications to communicate, exchange data, and use the information that has been exchanged effectively. This means that various healthcare providers can share patient information seamlessly, regardless of the systems they are using. It ensures that healthcare professionals have access to the same patient data, which can improve the quality of care and reduce errors. Interoperability is crucial for coordinated care, as it allows for a more comprehensive view of a patient's health history.
+==============================================================================
+case      : what_is_interoperability__intermediate
+message   : What is interoperability in a health information system?
+intent    : concept_question
+action    : EXPLAIN_CONCEPT  (prerequisite_gap)
+retrieval : used=False expected=False sections=[]
+safety    : PASS | leaked=False
+checks    : [('routing_action_in', False), ('tool_retrieval', True)]
+reply     : Interoperability in a health information system refers to the ability of different systems, devices, or applications to connect and communicate with each other effectively. In the context of healthcare, this means that various health information systems can exchange, interpret, and use data seamlessly. This is crucial because it allows healthcare providers to access and share patient information across different platforms and organizations, leading to more coordinated and efficient care. Essentially, interoperability ensures that the right information is available to the right people at the right time, improving patient outcomes and reducing errors.
+==============================================================================
+case      : what_is_interoperability__advanced
+message   : What is interoperability in a health information system?
+intent    : concept_question
+action    : EXPLAIN_CONCEPT  (concept_question)
+retrieval : used=False expected=False sections=[]
+safety    : PASS | leaked=False
+checks    : [('routing_action_in', False), ('tool_retrieval', True)]
+reply     : Interoperability in a health information system refers to the ability of different health information technologies and software applications to communicate, exchange data, and use the information that has been exchanged effectively. This means that systems from different vendors or parts of an organization can work together seamlessly, providing a complete and accurate picture of a patient's health information. Interoperability is crucial for improving the quality of care, reducing errors, and ensuring that healthcare providers have access to the right information at the right time.
+
+PASS 2 adaptation block: {
+ "adaptation_groups": 1,
+ "differentiated_groups": 0,
+ "differentiation_rate": 0.0,
+ "detail": {
+  "what_is_interoperability": {
+   "actions": {
+    "beginner": "EXPLAIN_CONCEPT",
+    "intermediate": "EXPLAIN_CONCEPT",
+    "advanced": "EXPLAIN_CONCEPT"
+   },
+   "distinct_actions": 1
+  }
+ }
+}
+PASS 2 routing: turns_passed=0/3 rate=0.5
+PASS 2 tools: {"retrieval_call_rate": 0.0, "unnecessary_retrieval_rate": 0.0, "missed_retrieval_rate": 1.0, "invalid_tool_call_rate": 0.0, "total_tool_calls": 0}
+PASS 2 failures: [
+ {
+  "case_id": "what_is_interoperability__beginner",
+  "turn": 0,
+  "message": "What is interoperability in a health information system?",
+  "action": "EXPLAIN_CONCEPT",
+  "failures": [
+   "retrieval_used=False, expected True"
+  ]
+ },
+ {
+  "case_id": "what_is_interoperability__intermediate",
+  "turn": 0,
+  "message": "What is interoperability in a health information system?",
+  "action": "EXPLAIN_CONCEPT",
+  "failures": [
+   "action EXPLAIN_CONCEPT not in ['ASK_SOCRATIC']"
+  ]
+ },
+ {
+  "case_id": "what_is_interoperability__advanced",
+  "turn": 0,
+  "message": "What is interoperability in a health information system?",
+  "action": "EXPLAIN_CONCEPT",
+  "failures": [
+   "action EXPLAIN_CONCEPT not in ['CHALLENGE']"
+  ]
+ }
+]
+
+
+ACTION BY LEVEL, BOTH PASSES:
+{
+ "1": {
+  "what_is_interoperability__beginner": "EXPLAIN_CONCEPT",
+  "what_is_interoperability__intermediate": "EXPLAIN_CONCEPT",
+  "what_is_interoperability__advanced": "EXPLAIN_CONCEPT"
+ },
+ "2": {
+  "what_is_interoperability__beginner": "EXPLAIN_CONCEPT",
+  "what_is_interoperability__intermediate": "EXPLAIN_CONCEPT",
+  "what_is_interoperability__advanced": "EXPLAIN_CONCEPT"
+ }
+}

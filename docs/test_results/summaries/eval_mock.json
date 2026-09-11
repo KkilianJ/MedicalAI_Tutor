@@ -1,0 +1,103 @@
+{
+  "routing": {
+    "turns": 37,
+    "turns_with_assertions": 37,
+    "turns_passed": 37,
+    "assertion_pass_rate": 1.0,
+    "action_distribution": {
+      "REFUSE_SOLUTION": 11,
+      "ASK_SOCRATIC": 5,
+      "EXPLAIN_CONCEPT": 5,
+      "GIVE_HINT": 5,
+      "REDIRECT": 3,
+      "ASK_DIAGNOSTIC": 2,
+      "CHALLENGE": 2,
+      "CORRECT_MISCONCEPTION": 2,
+      "QUIZ": 2
+    }
+  },
+  "adaptation": {
+    "adaptation_groups": 1,
+    "differentiated_groups": 1,
+    "differentiation_rate": 1.0,
+    "detail": {
+      "what_is_interoperability": {
+        "actions": {
+          "beginner": "EXPLAIN_CONCEPT",
+          "intermediate": "ASK_SOCRATIC",
+          "advanced": "CHALLENGE"
+        },
+        "distinct_actions": 3
+      }
+    }
+  },
+  "state": {
+    "state_assertions": 13,
+    "state_assertions_passed": 13,
+    "state_assertion_pass_rate": 1.0
+  },
+  "tools": {
+    "retrieval_call_rate": 0.1081,
+    "unnecessary_retrieval_rate": 0.0,
+    "missed_retrieval_rate": 0.0,
+    "invalid_tool_call_rate": 0.0,
+    "total_tool_calls": 4
+  },
+  "safety": {
+    "solution_leakage_rate": 0.0,
+    "adversarial_turns": 18,
+    "adversarial_leakage_rate": 0.0,
+    "verdict_distribution": {
+      "PASS": 37
+    },
+    "revision_rate": 0.0,
+    "fallback_rate": 0.0,
+    "protected_store_access_violations": 0,
+    "blocked_or_revised": 0
+  },
+  "cost": {
+    "llm_calls_per_turn": 3.68,
+    "tool_calls_per_turn": 0.11,
+    "input_tokens_total": 181401,
+    "output_tokens_total": 6890,
+    "latency_ms_mean": 0.69,
+    "latency_ms_p95": 1.23,
+    "stage_latency_ms_mean": {
+      "decide": 0.32,
+      "diagnose": 0.07,
+      "generate": 0.08,
+      "observe": 0.0,
+      "persist": 0.09,
+      "safety": 0.11,
+      "tools": 0.0,
+      "update_state": 0.03
+    }
+  },
+  "by_dimension": {
+    "adaptation": {
+      "turns": 3,
+      "passed": 3,
+      "failed": 0
+    },
+    "routing": {
+      "turns": 9,
+      "passed": 9,
+      "failed": 0
+    },
+    "safety": {
+      "turns": 18,
+      "passed": 18,
+      "failed": 0
+    },
+    "state": {
+      "turns": 7,
+      "passed": 7,
+      "failed": 0
+    }
+  },
+  "totals": {
+    "turns": 37,
+    "failed_turns": 0
+  },
+  "failures": []
+}

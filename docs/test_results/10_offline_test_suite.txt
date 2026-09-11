@@ -1,0 +1,22 @@
+# NOTE: the one failure below is test_secrets_hygiene, which fired because a real
+# API key was present in medical_ai_tutor/local_settings.py during this run.
+# The matched key has been REDACTED from this log. Remove the key and the suite is green.
+
+........................................................................ [ 59%]
+....................F............................                        [100%]
+=================================== FAILURES ===================================
+__________________ test_example_template_carries_no_real_key ___________________
+
+    def test_example_template_carries_no_real_key():
+        example = (PROJECT_ROOT / "medical_ai_tutor" / "local_settings.py").read_text(
+            encoding="utf-8"
+        )
+>       assert not KEY_PATTERN.search(example)
+E       assert not <re.Match object; span=(713, 877), match='sk-proj-<REDACTED>>
+E        +  where <re.Match object; span=(713, 877), match='sk-proj-<REDACTED>> = <built-in method search of re.Pattern object at 0x10962fc60>('"""Template for local developer settings.\n\nCopy this file to `local_settings.py` (same directory) and fill in your ...role model overrides. Leave empty to use config.yaml.\nMODEL_CONTROLLER = ""\nMODEL_GENERATOR = ""\nMODEL_JUDGE = ""\n')
+E        +    where <built-in method search of re.Pattern object at 0x10962fc60> = re.compile('\\b(sk-ant-|sk-proj-|sk-or-|sk-)[A-Za-z0-9_\\-]{20,}').search
+
+tests/test_secrets_hygiene.py:86: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_secrets_hygiene.py::test_example_template_carries_no_real_key
+1 failed, 120 passed, 8 deselected in 3.64s
