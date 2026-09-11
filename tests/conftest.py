@@ -86,6 +86,9 @@ def _no_developer_credentials(request, monkeypatch):
     opt back in, because hitting a real provider is the point of those.
     """
     if request.node.get_closest_marker("live"):
+        # This is a generator fixture: it must still yield exactly once, or
+        # pytest reports "did not yield a value" and every live test errors.
+        yield
         return
 
     from medical_ai_tutor import config as config_module
