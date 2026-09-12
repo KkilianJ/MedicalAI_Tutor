@@ -1,6 +1,7 @@
-# Test results — MAM1 development and testing report
+# Test results
 
-Raw output behind every result table in `MAM1_Kilian_Jiang_report_code_based`.
+
+Raw output behind every result table in `Medical AI Report`.
 Nothing here is edited except one redaction, noted below.
 
 **Run on** 12 September 2026
